@@ -1,0 +1,9 @@
+{
+  "name": "zy-markdown-to-html-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "zy-md": "file:../../../packages/zy-md",
+    "zy-chrome-cdp": "file:../../../packages/zy-chrome-cdp"
+  }
+}
