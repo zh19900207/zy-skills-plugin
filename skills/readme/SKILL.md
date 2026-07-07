@@ -1,5 +1,4 @@
 ---
-name: zy-skills-plugin:readme
 description: 介绍 zy-skills-plugin 插件的功能和使用方法
 ---
 
