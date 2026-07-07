@@ -1,14 +1,5 @@
 ---
-name: zy-skills-plugin:markdown-to-html
 description: 将 Markdown 文件转换为带样式的 HTML，支持多种主题、代码高亮、图表渲染。适用于微信公众号、文档发布等场景。当用户询问 "markdown to html"、"md 转 html"、"Markdown 转 HTML" 或需要生成样式化 HTML 输出时使用此 skill。
-version: 1.0.0
-metadata:
-  openclaw:
-    homepage: https://github.com/zh19900207/zy-skills-plugin
-    requires:
-      anyBins:
-        - bun
-        - npx
 ---
 
 # Markdown to HTML Skill
