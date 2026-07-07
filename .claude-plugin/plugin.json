@@ -1,0 +1,8 @@
+{
+  "name": "zy-skills-plugin",
+  "description": "郑义的个人 Claude Code 插件，包含自定义 skills 和 hooks",
+  "version": "1.0.0",
+  "author": {
+    "name": "郑义"
+  }
+}
