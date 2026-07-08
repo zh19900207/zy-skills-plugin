@@ -26,6 +26,7 @@ export function printUsage(): void {
       `  --count               Show reading time / word count`,
       `  --legend <value>      Image caption: title-alt, alt-title, title, alt, none`,
       `  --keep-title          Keep the first heading in output`,
+      `  --sidebar             Enable left sidebar navigation`,
     ].join("\n")
   );
 }
@@ -62,6 +63,7 @@ export function parseArgs(argv: string[]): CliOptions | null {
   let citeStatus = ext.cite ?? false;
   let countStatus = ext.count ?? false;
   let legend = ext.legend ?? "alt";
+  let sidebar = false;
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]!;
@@ -81,6 +83,7 @@ export function parseArgs(argv: string[]): CliOptions | null {
     if (arg === "--line-number") { isShowLineNumber = true; continue; }
     if (arg === "--cite") { citeStatus = true; continue; }
     if (arg === "--count") { countStatus = true; continue; }
+    if (arg === "--sidebar") { sidebar = true; continue; }
 
     if (arg === "--theme" || arg.startsWith("--theme=")) {
       const val = parseArgValue(argv, i, "--theme");
@@ -158,6 +161,6 @@ export function parseArgs(argv: string[]): CliOptions | null {
 
   return {
     inputPath, theme, keepTitle, primaryColor, fontFamily, fontSize,
-    codeTheme, isMacCodeBlock, isShowLineNumber, citeStatus, countStatus, legend,
+    codeTheme, isMacCodeBlock, isShowLineNumber, citeStatus, countStatus, legend, sidebar,
   };
 }

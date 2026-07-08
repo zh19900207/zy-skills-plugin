@@ -388,16 +388,16 @@ thead {
 th {
   border: 1px solid #dfdfdf;
   padding: 0.25em 0.5em;
-  color: hsl(var(--foreground));
-  word-break: keep-all;
-  background: rgba(0, 0, 0, 0.05);
+  color: hsl(var(--foreground)) !important;
+  word-break: break-word !important;
+  background: rgba(0, 0, 0, 0.05) !important;
 }
 
 td {
   border: 1px solid #dfdfdf;
   padding: 0.25em 0.5em;
-  color: hsl(var(--foreground));
-  word-break: keep-all;
+  color: hsl(var(--foreground)) !important;
+  word-break: break-word !important;
 }
 
 /* ==================== KaTeX 公式 ==================== */

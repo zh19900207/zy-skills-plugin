@@ -64,12 +64,136 @@ export function loadCodeThemeCss(themeName: string): string {
   }
 }
 
-export function buildHtmlDocument(meta: HtmlDocumentMeta, css: string, html: string, codeThemeCss?: string): string {
+export function buildHtmlDocument(meta: HtmlDocumentMeta, css: string, html: string, codeThemeCss?: string, withSidebar: boolean = false): string {
   const escapeHtmlAttribute = (value: string) => value
     .replace(/&/g, "&amp;")
     .replace(/"/g, "&quot;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+
+  const sidebarStyle = `
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 260px;
+      height: 100vh;
+      background: #f7f7f7;
+      border-right: 1px solid #e0e0e0;
+      overflow-y: auto;
+      padding: 20px 16px;
+      box-sizing: border-box;
+      z-index: 1000;
+      font-family: -apple-system-font, BlinkMacSystemFont, Helvetica Neue, PingFang SC, Hiragino Sans GB, Microsoft YaHei UI, Microsoft YaHei, Arial, sans-serif;
+      font-size: 14px;
+    }
+    .sidebar-toggle {
+      position: fixed;
+      left: 10px;
+      top: 10px;
+      width: 36px;
+      height: 36px;
+      background: var(--md-primary-color, #0F4C81);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .sidebar-toggle:hover { opacity: 0.9; }
+    .sidebar-title {
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--md-primary-color, #0F4C81);
+      color: #333;
+    }
+    .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+    .sidebar-nav li { margin: 4px 0; }
+    .sidebar-nav a {
+      display: block;
+      padding: 6px 8px;
+      color: #555;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sidebar-nav a:hover { background: #e8e8e8; color: #333; }
+    .sidebar-nav a.active { background: var(--md-primary-color, #0F4C81); color: white; }
+    .sidebar-nav .nav-h2 { padding-left: 8px; font-size: 13px; }
+    .sidebar-nav .nav-h3 { padding-left: 20px; font-size: 12px; color: #777; }
+    .sidebar-nav .nav-h4 { padding-left: 32px; font-size: 11px; color: #999; }
+    .main-content { margin-left: 0; transition: margin-left 0.3s; }
+    .main-content.sidebar-open { margin-left: 260px; }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      .sidebar.open { transform: translateX(0); }
+      .main-content.sidebar-open { margin-left: 0; }
+    }
+  `;
+
+  const sidebarScript = `
+    <script>
+    (function() {
+      var btn = document.querySelector('.sidebar-toggle');
+      var sidebar = document.querySelector('.sidebar');
+      if (btn && sidebar) {
+        btn.addEventListener('click', function() {
+          sidebar.classList.toggle('open');
+          document.querySelector('.main-content').classList.toggle('sidebar-open');
+        });
+      }
+      // Auto-generate TOC from headings
+      var headings = document.querySelectorAll('h1, h2, h3, h4');
+      var nav = document.querySelector('.sidebar-nav');
+      if (headings.length && nav) {
+        headings.forEach(function(h, i) {
+          if (!h.id) h.id = 'heading-' + i;
+          var li = document.createElement('li');
+          li.className = 'nav-' + h.tagName.toLowerCase();
+          var a = document.createElement('a');
+          a.href = '#' + h.id;
+          a.textContent = h.textContent || '';
+          li.appendChild(a);
+          nav.appendChild(li);
+        });
+      }
+      // Highlight active heading on scroll
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          var id = entry.target.id;
+          var link = document.querySelector('.sidebar-nav a[href="#' + id + '"]');
+          if (link) {
+            if (entry.isIntersecting) {
+              document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
+              link.classList.add('active');
+            }
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '-80px 0px -70% 0px' });
+      headings.forEach(function(h) { if (h.id) observer.observe(h); });
+      // Smooth scroll
+      document.addEventListener('click', function(e) {
+        if (e.target.matches('.sidebar-nav a')) {
+          e.preventDefault();
+          var id = e.target.getAttribute('href').slice(1);
+          var el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    })();
+    </script>
+  `;
+
   const lines = [
     "<!doctype html>",
     "<html>",
@@ -85,18 +209,39 @@ export function buildHtmlDocument(meta: HtmlDocumentMeta, css: string, html: str
     lines.push(`  <meta name="description" content="${escapeHtmlAttribute(meta.description)}" />`);
   }
   lines.push(`  <style>${css}</style>`);
+  lines.push(`  <style>${sidebarStyle}</style>`);
   if (codeThemeCss) {
     lines.push(`  <style>${codeThemeCss}</style>`);
   }
   lines.push(
     "</head>",
-    "<body>",
-    '  <div id="output">',
-    html,
-    "  </div>",
-    "</body>",
-    "</html>"
+    "<body>"
   );
+  if (withSidebar) {
+    lines.push(
+      '  <button class="sidebar-toggle" title="目录">☰</button>',
+      '  <nav class="sidebar">',
+      '    <div class="sidebar-title">目录</div>',
+      '    <ul class="sidebar-nav"></ul>',
+      '  </nav>',
+      '  <div class="main-content">',
+      `    <div id="output">`,
+      html,
+      '    </div>',
+      '  </div>',
+      sidebarScript,
+      "</body>",
+      "</html>"
+    );
+  } else {
+    lines.push(
+      '  <div id="output">',
+      html,
+      '  </div>',
+      "</body>",
+      "</html>"
+    );
+  }
   return lines.join("\n");
 }
 

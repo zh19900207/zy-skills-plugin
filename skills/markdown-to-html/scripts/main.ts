@@ -145,6 +145,7 @@ export async function convertMarkdown(
     keepTitle,
     legend: options?.legend,
     primaryColor: options?.primaryColor,
+    sidebar: options?.sidebar,
     theme,
   });
 

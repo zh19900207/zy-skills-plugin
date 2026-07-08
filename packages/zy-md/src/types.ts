@@ -55,6 +55,7 @@ export interface CliOptions {
   citeStatus: boolean;
   countStatus: boolean;
   legend: string;
+  sidebar: boolean;
 }
 
 export interface ExtendConfig {

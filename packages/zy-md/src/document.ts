@@ -41,6 +41,7 @@ export interface RenderMarkdownDocumentOptions {
   keepTitle?: boolean;
   legend?: string;
   primaryColor?: string;
+  sidebar?: boolean;
   theme?: ThemeName;
   themeMode?: IOpts["themeMode"];
 }
@@ -120,6 +121,7 @@ export function resolveRenderOptions(
     keepTitle: options.keepTitle ?? extendConfig.keep_title ?? false,
     legend: options.legend ?? extendConfig.legend ?? "alt",
     primaryColor: options.primaryColor ?? resolveColorToken(extendConfig.default_color ?? undefined),
+    sidebar: options.sidebar ?? false,
     theme: options.theme ?? extendConfig.default_theme ?? "default",
     themeMode: options.themeMode,
   };
@@ -160,7 +162,7 @@ export async function renderMarkdownDocument(
     yamlData as Record<string, unknown>,
     resolvedOptions.defaultTitle,
   );
-  const html = buildHtmlDocument(meta, css, contentHtml, codeThemeCss);
+  const html = buildHtmlDocument(meta, css, contentHtml, codeThemeCss, resolvedOptions.sidebar);
   const inlinedHtml = normalizeInlineCss(await inlineCss(html), style);
 
   return {
