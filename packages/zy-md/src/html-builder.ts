@@ -46,7 +46,7 @@ body {
 }
 
 #output {
-  max-width: 860px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 `.trim();
